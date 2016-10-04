@@ -1,7 +1,5 @@
 package com.marcelib.microplayer.web.server;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by Marceli on 03.10.2016.

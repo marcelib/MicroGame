@@ -1,14 +1,9 @@
 package com.marcelib.microplayer.web.rest;
 
-import com.marcelib.microplayer.MicroPlayerApplication;
 import com.marcelib.microplayer.beans.ConnectionBean;
 import com.marcelib.microplayer.web.response.PollResponse;
 import com.marcelib.microplayer.web.server.ConnectedServer;
-import com.sun.org.apache.xpath.internal.SourceTree;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -52,10 +47,10 @@ public class PollController {
         RestTemplate restTemplate = new RestTemplate();
         LOGGER.info("Sending poll to judge");
         PollResponse response = restTemplate.getForObject(url, PollResponse.class);
-        if(response.getKey()!=connectionBean.getConnectedServer().getId()){
+        if (response.getKey() != connectionBean.getConnectedServer().getId()) {
             LOGGER.info("Invalid game keys! Program will now exit.");
             System.exit(1);
-        } else{
+        } else {
             LOGGER.info("Poll successfully returned from judge");
         }
     }

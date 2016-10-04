@@ -4,13 +4,11 @@ import com.marcelib.microjudge.beans.ConnectionBean;
 import com.marcelib.microjudge.web.client.ConnectedEntity;
 import com.marcelib.microjudge.web.response.PollResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Random;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 /**
