@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * Created by Marceli on 03.10.2016.
@@ -24,6 +25,8 @@ public class PollController {
 
     private static final String template = "Status: OK";
     private static final String TYPE = "Player";
+    private static final int JUDGE_PORT = 9000;
+    private static final Logger LOGGER = Logger.getLogger(PollController.class.getName());
     //final after starting the server- unable to change
     private final long gameKey = new Random().nextLong();
 
@@ -44,22 +47,28 @@ public class PollController {
         return new PollResponse(gameKey, TYPE);
     }
 
-    public boolean sendJudgePoll() {
-        String url = "http://localhost:9000/poll";
+    public void sendJudgePoll() {
+        String url = "http://localhost:" + JUDGE_PORT + "/poll";
         RestTemplate restTemplate = new RestTemplate();
+        LOGGER.info("Sending poll to judge");
         PollResponse response = restTemplate.getForObject(url, PollResponse.class);
-        return false;
+        if(response.getKey()!=connectionBean.getConnectedServer().getId()){
+            LOGGER.info("Invalid game keys! Program will now exit.");
+            System.exit(1);
+        } else{
+            LOGGER.info("Poll successfully returned from judge");
+        }
     }
 
     public boolean sendJudgeRecognize() {
-        String url = "http://localhost:9000/recognize";
+        String url = "http://localhost:" + JUDGE_PORT + "/recognize";
         RestTemplate restTemplate = new RestTemplate();
         PollResponse response = restTemplate.getForObject(url, PollResponse.class);
         if (response.getResponseKey().equals("Judge")) {
             ConnectedServer connectedServer = new ConnectedServer(response.getKey());
             if ((connectionBean.getConnectedServer() == null)) {
                 connectionBean.setConnectedServer(connectedServer);
-                System.out.println("Connection success!");
+                LOGGER.info("Judge recognized");
                 return true;
             }
         }
