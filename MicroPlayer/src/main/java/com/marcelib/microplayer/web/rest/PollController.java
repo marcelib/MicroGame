@@ -4,6 +4,7 @@ import com.marcelib.microplayer.beans.ConnectionBean;
 import com.marcelib.microplayer.web.response.PollResponse;
 import com.marcelib.microplayer.web.server.ConnectedServer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -24,6 +25,9 @@ public class PollController {
     private static final Logger LOGGER = Logger.getLogger(PollController.class.getName());
     //final after starting the server- unable to change
     private final long gameKey = new Random().nextLong();
+
+    @Value("${server.port}")
+    private int LOCAL_PORT;
 
     private final ConnectionBean connectionBean;
 

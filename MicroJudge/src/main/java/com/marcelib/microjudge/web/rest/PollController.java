@@ -3,7 +3,9 @@ package com.marcelib.microjudge.web.rest;
 import com.marcelib.microjudge.beans.ConnectionBean;
 import com.marcelib.microjudge.web.client.ConnectedEntity;
 import com.marcelib.microjudge.web.response.PollResponse;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -41,8 +43,12 @@ public class PollController {
     }
 
     @RequestMapping("/recognize")
-    public PollResponse getType() {
-        LOGGER.info("Request recognize received, returning id " + gameKey);
+    public PollResponse getType(HttpServletRequest request) {
+        LOGGER.info("Request recognize from " + request.getRemoteAddr() + ":" + request.getRemotePort() + " received, returning id " + gameKey);
+        String url = "http://"+request.getRemoteAddr() + ":" + request.getRemotePort() + "/poll";
+        LOGGER.info(url);
+        RestTemplate restTemplate = new RestTemplate();
+        LOGGER.info(restTemplate.getForObject(url, PollResponse.class).toString());
         return new PollResponse(gameKey, TYPE);
     }
 
