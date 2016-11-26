@@ -8,16 +8,11 @@ public class ConnectedEntity {
     private final long id;
     private boolean starting;
 
-    public ConnectedEntity(long id, boolean starting) {
+    public ConnectedEntity(long id) {
         this.id = id;
-        this.starting = starting;
     }
 
     public long getId() {
         return id;
-    }
-
-    public boolean isStarting() {
-        return starting;
     }
 }
