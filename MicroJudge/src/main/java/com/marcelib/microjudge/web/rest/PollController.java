@@ -1,12 +1,15 @@
 package com.marcelib.microjudge.web.rest;
 
 import com.marcelib.microjudge.beans.ConnectionBean;
-import com.marcelib.microjudge.web.client.ConnectedEntity;
 import com.marcelib.microjudge.web.response.PollResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -26,23 +29,28 @@ public class PollController {
     //final after starting the server- unable to change
     private final long gameKey = new Random().nextLong();
 
+    private DiscoveryClient discoveryClient;
     private ConnectionBean connectionBean;
 
+    @Autowired
+    public PollController (DiscoveryClient discoveryClient, ConnectionBean connectionBean) {
+        this.discoveryClient = discoveryClient;
+        this.connectionBean = connectionBean;
+    }
+
     @RequestMapping("/poll")
-    public PollResponse respond() {
-        System.out.println("DUPA");
+    public PollResponse respond () {
         LOGGER.info("Poll received, returning id " + gameKey);
-        System.out.println("DUPA");
         return new PollResponse(gameKey, TEMPLATE);
     }
 
     @RequestMapping("/recognize")
-    public PollResponse getType() {
+    public PollResponse getType () {
         LOGGER.info("Request recognize received, returning id " + gameKey);
         return new PollResponse(gameKey, TYPE);
     }
 
-    public boolean sendPlayerPoll(int port) {
+    public boolean sendPlayerPoll (int port) {
         String url = "http://localhost:" + port + "/poll";
         RestTemplate restTemplate = new RestTemplate();
         System.out.println("Sending poll to player");
@@ -50,20 +58,14 @@ public class PollController {
         return verifyGameKey(response.getKey());
     }
 
-    private boolean verifyGameKey(long gameKey) {
+    private boolean verifyGameKey (long gameKey) {
         return connectionBean.getConnectedPlayers().stream().anyMatch(e -> e.getId() == gameKey);
     }
 
-    public boolean sendPlayerRecognize(int port) {
-        String url = "http://localhost:" + port + "/recognize";
-        RestTemplate restTemplate = new RestTemplate();
-        PollResponse response = restTemplate.getForObject(url, PollResponse.class);
-        if (response.getResponseKey().equals("Judge")) {
-            boolean firstConnection = connectionBean.getConnectedPlayers().size() == 0;
-            ConnectedEntity connectedServer = new ConnectedEntity(response.getKey(), firstConnection);
-            connectionBean.addConnectedPlayer(connectedServer);
-            return true;
-        }
-        return false;
+    public boolean sendPlayerRecognize (int port) {
+        List<ServiceInstance> judgeInstanceList = discoveryClient.getInstances("micro-player");
+        judgeInstanceList.forEach(serviceInstance -> sendJudgeRecognizes(serviceInstance.getHost(), serviceInstance.getPort()));
+        return connectionBean.getConnectedServer() != null;
     }
+
 }

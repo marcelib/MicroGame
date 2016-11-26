@@ -13,7 +13,7 @@ import java.util.TimerTask;
 import java.util.logging.Logger;
 
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.marcelib"})
 public class MicroPlayerApplication {
 
     private final static Logger LOGGER = Logger.getLogger(MicroPlayerApplication.class.getName());
@@ -22,7 +22,6 @@ public class MicroPlayerApplication {
         ApplicationContext context = SpringApplication.run(MicroPlayerApplication.class, args);
         PollController pollController = new PollController((ConnectionBean) context.getBean("connectionBean"), (DiscoveryClient) context.getBean("discoveryClient"));
         pollController.sendJudgeRecognize();
-        LOGGER.info("" + ((ConnectionBean) context.getBean("connectionBean")).getConnectedServer().getId());
 
         Timer t = new Timer();
         t.schedule(new TimerTask() {
