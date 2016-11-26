@@ -4,10 +4,13 @@ import com.marcelib.microplayer.beans.ConnectionBean;
 import com.marcelib.microplayer.web.response.PollResponse;
 import com.marcelib.microplayer.web.server.ConnectedServer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -27,23 +30,26 @@ public class PollController {
 
     private final ConnectionBean connectionBean;
 
+    private final DiscoveryClient discoveryClient;
+
     @Autowired
-    public PollController(ConnectionBean connectionBean) {
+    public PollController (ConnectionBean connectionBean, DiscoveryClient discoveryClient) {
         this.connectionBean = connectionBean;
+        this.discoveryClient = discoveryClient;
     }
 
     @RequestMapping("/poll")
-    public PollResponse respond() {
+    public PollResponse respond () {
         return new PollResponse(gameKey, template);
     }
 
     @RequestMapping("/recognize")
-    public PollResponse getType() {
+    public PollResponse getType () {
         return new PollResponse(gameKey, TYPE);
     }
 
-    public void sendJudgePoll() {
-        String url = "http://localhost:" + JUDGE_PORT + "/poll";
+    private void sendJudgePolls (String host, int port) {
+        String url = "http://"+ host + ":" + port + "/poll";
         RestTemplate restTemplate = new RestTemplate();
         LOGGER.info("Sending poll to judge");
         PollResponse response = restTemplate.getForObject(url, PollResponse.class);
@@ -53,10 +59,16 @@ public class PollController {
         } else {
             LOGGER.info("Poll successfully returned from judge");
         }
+
     }
 
-    public boolean sendJudgeRecognize() {
-        String url = "http://localhost:" + JUDGE_PORT + "/recognize";
+    public void sendJudgePoll () {
+        List<ServiceInstance> judgeInstanceList = discoveryClient.getInstances("micro-judge");
+        judgeInstanceList.forEach(serviceInstance -> sendJudgePolls(serviceInstance.getHost(), serviceInstance.getPort()));
+    }
+
+    private boolean sendJudgeRecognizes (String host, int port) {
+        String url = "http://"+ host + ":" + port + "/recognize";
         RestTemplate restTemplate = new RestTemplate();
         PollResponse response = restTemplate.getForObject(url, PollResponse.class);
         if (response.getResponseKey().equals("Judge")) {
@@ -68,5 +80,11 @@ public class PollController {
             }
         }
         return false;
+    }
+
+    public boolean sendJudgeRecognize () {
+        List<ServiceInstance> judgeInstanceList = discoveryClient.getInstances("micro-judge");
+        judgeInstanceList.forEach(serviceInstance -> sendJudgeRecognizes(serviceInstance.getHost(), serviceInstance.getPort()));
+        return connectionBean.getConnectedServer() != null;
     }
 }

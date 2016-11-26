@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>microplayer</artifactId>
+    <artifactId>discoveryclient</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>MicroPlayer</name>
-    <description>A microservice player for the magic game</description>
+    <name>DiscoveryClient</name>
+    <description>A microservice discovery client</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -26,6 +26,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -36,14 +46,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka-server</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
     </dependencies>
     <dependencyManagement>
@@ -65,4 +69,6 @@
             </plugin>
         </plugins>
     </build>
+
+
 </project>

@@ -3,7 +3,6 @@ package com.marcelib.microjudge.web.rest;
 import com.marcelib.microjudge.beans.ConnectionBean;
 import com.marcelib.microjudge.web.client.ConnectedEntity;
 import com.marcelib.microjudge.web.response.PollResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -29,14 +28,11 @@ public class PollController {
 
     private ConnectionBean connectionBean;
 
-    @Autowired
-    public PollController(ConnectionBean connectionBean) {
-        this.connectionBean = connectionBean;
-    }
-
     @RequestMapping("/poll")
     public PollResponse respond() {
+        System.out.println("DUPA");
         LOGGER.info("Poll received, returning id " + gameKey);
+        System.out.println("DUPA");
         return new PollResponse(gameKey, TEMPLATE);
     }
 
