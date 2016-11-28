@@ -6,7 +6,6 @@ package com.marcelib.microjudge.web.client;
  */
 public class ConnectedEntity {
     private final long id;
-    private boolean starting;
 
     public ConnectedEntity(long id) {
         this.id = id;

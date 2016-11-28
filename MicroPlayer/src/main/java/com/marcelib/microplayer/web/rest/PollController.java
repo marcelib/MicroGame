@@ -23,10 +23,8 @@ public class PollController {
 
     private static final String template = "Status: OK";
     private static final String TYPE = "Player";
-    private static final int JUDGE_PORT = 9000;
     private static final Logger LOGGER = Logger.getLogger(PollController.class.getName());
-    //final after starting the server- unable to change
-    private final long gameKey = new Random().nextLong();
+    private final long playerKey = new Random().nextLong();
 
     private final ConnectionBean connectionBean;
 
@@ -40,35 +38,29 @@ public class PollController {
 
     @RequestMapping("/poll")
     public PollResponse respond () {
-        return new PollResponse(gameKey, template);
+        LOGGER.info("Poll request received, returning id " + playerKey);
+        return new PollResponse(playerKey, template);
     }
 
     @RequestMapping("/recognize")
     public PollResponse getType () {
-        return new PollResponse(gameKey, TYPE);
+        LOGGER.info("Recognize request received, returning id " + playerKey + " and type " + TYPE);
+        return new PollResponse(playerKey, TYPE);
     }
 
-    private void sendJudgePolls (String host, int port) {
-        String url = "http://"+ host + ":" + port + "/poll";
-        RestTemplate restTemplate = new RestTemplate();
-        LOGGER.info("Sending poll to judge");
-        PollResponse response = restTemplate.getForObject(url, PollResponse.class);
-        if (response.getKey() != connectionBean.getConnectedServer().getId()) {
-            LOGGER.info("Invalid game keys! Program will now exit.");
-            System.exit(1);
-        } else {
-            LOGGER.info("Poll successfully returned from judge");
-        }
-
+    public boolean judgeRecognizeRequests () {
+        List<ServiceInstance> judgeInstanceList = discoveryClient.getInstances("micro-judge");
+        judgeInstanceList.forEach(serviceInstance -> sendJudgeRecognizes(serviceInstance.getHost(), serviceInstance.getPort()));
+        return connectionBean.getConnectedServer() != null;
     }
 
-    public void sendJudgePoll () {
+    public void judgePollRequests () {
         List<ServiceInstance> judgeInstanceList = discoveryClient.getInstances("micro-judge");
         judgeInstanceList.forEach(serviceInstance -> sendJudgePolls(serviceInstance.getHost(), serviceInstance.getPort()));
     }
 
     private boolean sendJudgeRecognizes (String host, int port) {
-        String url = "http://"+ host + ":" + port + "/recognize";
+        String url = "http://" + host + ":" + port + "/recognize";
         RestTemplate restTemplate = new RestTemplate();
         PollResponse response = restTemplate.getForObject(url, PollResponse.class);
         if (response.getResponseKey().equals("Judge")) {
@@ -82,9 +74,13 @@ public class PollController {
         return false;
     }
 
-    public boolean sendJudgeRecognize () {
-        List<ServiceInstance> judgeInstanceList = discoveryClient.getInstances("micro-judge");
-        judgeInstanceList.forEach(serviceInstance -> sendJudgeRecognizes(serviceInstance.getHost(), serviceInstance.getPort()));
-        return connectionBean.getConnectedServer() != null;
+    private void sendJudgePolls (String host, int port) {
+        PollResponse response = new RestTemplate().getForObject("http://" + host + ":" + port + "/poll", PollResponse.class);
+        if (response.getKey() != connectionBean.getConnectedServer().getId()) {
+            LOGGER.info("Invalid game keys! Duplicate judge instances are not recommmended.");
+            System.exit(1);
+        } else {
+            LOGGER.info("Poll successfully returned from judge");
+        }
     }
 }

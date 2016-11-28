@@ -6,19 +6,22 @@ package com.marcelib.microjudge.web.response;
  */
 public class PollResponse {
 
-    private final long key;
-    private final String responseKey;
+    private long key;
+    private String responseKey;
 
-    public PollResponse(long key, String responseKey) {
+    public PollResponse () {
+    }
+
+    public PollResponse (long key, String responseKey) {
         this.key = key;
         this.responseKey = responseKey;
     }
 
-    public String getResponseKey() {
+    public String getResponseKey () {
         return responseKey;
     }
 
-    public long getKey() {
+    public long getKey () {
         return key;
     }
 }

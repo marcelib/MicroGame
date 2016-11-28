@@ -21,12 +21,12 @@ public class MicroPlayerApplication {
     public static void main (String[] args) {
         ApplicationContext context = SpringApplication.run(MicroPlayerApplication.class, args);
         PollController pollController = new PollController((ConnectionBean) context.getBean("connectionBean"), (DiscoveryClient) context.getBean("discoveryClient"));
-        pollController.sendJudgeRecognize();
+        pollController.judgeRecognizeRequests();
 
         Timer t = new Timer();
         t.schedule(new TimerTask() {
             public void run () {
-                pollController.sendJudgePoll();
+                pollController.judgePollRequests();
             }
         }, 0, 2000);
     }

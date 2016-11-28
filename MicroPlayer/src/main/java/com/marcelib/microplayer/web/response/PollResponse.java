@@ -9,19 +9,19 @@ public class PollResponse {
     private long key;
     private String responseKey;
 
-    public PollResponse() {
+    public PollResponse () {
     }
 
-    public PollResponse(long key, String responseKey) {
+    public PollResponse (long key, String responseKey) {
         this.key = key;
         this.responseKey = responseKey;
     }
 
-    public String getResponseKey() {
+    public String getResponseKey () {
         return responseKey;
     }
 
-    public long getKey() {
+    public long getKey () {
         return key;
     }
 }
